@@ -52,10 +52,39 @@ Both options are obviously bad... As the former can cause false data, and the la
 What if, the db would save everything inside tables, BUT, would send it in BSON/JSON/other non table like format?
 (BSON/JSON will probably be too bloated for such a thing but we can create another format)
 
-Well we'd obviously need another syntax to ask for queries from the DB, but what's the holdup?
+Well we'd obviously need another syntax (see below) to ask for queries from the DB, but what's the holdup?
 
-It won't replace `NoSql` databases, it would still save up everything in tables, so a bunch on NULLs would still be
+It won't replace `NoSql` databases, it would still save up everything in tables, so a bunch of NULLs would still be
 wastful
 
 But it can maybe replace regular `SQL`...
 
+### Language Syntax
+The thing that was really annoying for me when starting to learn SQL, is the syntax. A whole language for queries, why?
+
+Imagine sending the SQL server actual code that it'll execute and return to you for example:
+```c++
+Person query_func() {
+  // fetching the Person with id==1
+  Person p = get_from_field<Person>(1, "id"); // let's say this function doesn't query ForeignKeys
+
+  // fetching the People with parent_id==1
+  p.children = get_from_field<Person>(1, "parent_id")
+  return p;
+}
+```
+
+Now we can remove the stuff the server can understand on it's own (to save on network bandwidth). And we get:
+
+```c++
+Person p = get_from_field<Person>(1, "id");
+p.children = get_from_field<Person>(1, "parent_id")
+return p;
+```
+
+This is the code you'd send the SNS server, and the server, will just run it.
+
+I personally don't think C++ is a good choice for this, but it's the same idea with any other language.\
+The problem with C++ as well as many others, as even if it's not slow, its compilation is. \
+So either you pre-compile on
+the client side (but this will still take time), or use a programming language that compiles fast (like `c`, `zig`, `odin` or `jai`).
